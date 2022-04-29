@@ -8,7 +8,9 @@ services:
     environment:
       - DEFAULT_REGION=us-east-1
       - EDGE_PORT=4566
-      - SERVICES=sqs,sns
+      - SERVICES=sqs,sns,dynamodb
+      - EXTRA_CORS_ALLOWED_ORIGIN=app://.
+      - DISABLE_CORS_CHECKS=1
     volumes:
       - ./init-scripts:/docker-entrypoint-initaws.d
       - /var/run/docker.sock:/var/run/docker.sock

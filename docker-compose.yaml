@@ -6,11 +6,16 @@ services:
     ports:
       - '4566-4597:4566-4597'
     environment:
-      - DEFAULT_REGION=us-east-1
       - EDGE_PORT=4566
-      - SERVICES=sqs,sns,dynamodb
+      - SERVICES=sqs,sns,dynamodb,iam,s3,lambda,cloudwatch
       - EXTRA_CORS_ALLOWED_ORIGIN=app://.
       - DISABLE_CORS_CHECKS=1
+      - DEBUG=1
     volumes:
-      - ./init-scripts:/docker-entrypoint-initaws.d
+      - ./init-scripts/localstack:/docker-entrypoint-initaws.d
       - /var/run/docker.sock:/var/run/docker.sock
+  crypto-data-digest-lambda:
+    image: lfbrienze/crypto-data-digest-lambda
+    volumes:
+      - ./init-scripts/robot/data-digest:/init-scripts
+    entrypoint: sh -c "sh /init-scripts/01-profile-creation.sh && sh /init-scripts/02-wait-for-localstack.sh && sh /init-scripts/03-resources-creation.sh"

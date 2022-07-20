@@ -12,10 +12,18 @@ services:
       - DISABLE_CORS_CHECKS=1
       - DEBUG=1
     volumes:
-      - ./init-scripts/localstack:/docker-entrypoint-initaws.d
+      - ./localstack/init-scripts:/docker-entrypoint-initaws.d
       - /var/run/docker.sock:/var/run/docker.sock
   crypto-data-digest-lambda:
-    image: lfbrienze/crypto-data-digest-lambda
+    image: lfbrienze/crypto-data-digest-lambda:latest
     volumes:
-      - ./init-scripts/robot/data-digest:/init-scripts
-    entrypoint: sh -c "sh /init-scripts/01-profile-creation.sh && sh /init-scripts/02-wait-for-localstack.sh && sh /init-scripts/03-resources-creation.sh"
+      - ./lambda-files:/lambda-files
+    entrypoint: sh -c "cp crypto-robot-data-digest.zip /lambda-files"
+  awscli:
+    depends_on:
+      - crypto-data-digest-lambda
+    image: amazon/aws-cli:latest
+    volumes:
+      - ./lambda-files:/lambda-files
+      - ./crypto-data-digest-lambda/init-scripts:/init-scripts/crypto-data-digest-lambda
+    entrypoint: sh -c "sh /init-scripts/crypto-data-digest-lambda/01-profile-creation.sh && sh /init-scripts/crypto-data-digest-lambda/02-wait-for-localstack.sh && sh /init-scripts/crypto-data-digest-lambda/03-resources-creation.sh"

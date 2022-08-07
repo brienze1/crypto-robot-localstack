@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "-----------------Script-02----------------- [data-digest]"
+echo "-----------------Script-01----------------- [data-analysis-gen]"
 
 echo "########### Check if localstack is up ###########"
 until curl http://localstack:4566/health --silent; do

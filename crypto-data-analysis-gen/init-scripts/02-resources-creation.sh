@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "-----------------Script-03----------------- [data-digest]"
+echo "-----------------Script-02----------------- [data-analysis-gen]"
 
 echo "########### Creating SNS ###########"
 aws sns create-topic --name cryptoAnalysisTopic --endpoint-url http://localstack:4566

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "-----------------Script-03----------------- [data-digest]"
+echo "-----------------Script-02----------------- [data-digest]"
 
 echo "########### Creating SQS ###########"
 aws sqs create-queue --queue-name cryptoAnalysisQueue --endpoint-url http://localstack:4566

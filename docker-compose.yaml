@@ -25,8 +25,12 @@ services:
     image: amazon/aws-cli:latest
     volumes:
       - ./lambda-files:/lambda-files
+      - ./localstack/init-scripts:/init-scripts/localstack
+      - ./crypto-data-analysis-gen/init-scripts:/init-scripts/crypto-data-analysis-gen
       - ./crypto-data-digest-lambda/init-scripts:/init-scripts/crypto-data-digest-lambda
     entrypoint: >
-      sh -c "sh /init-scripts/crypto-data-digest-lambda/01-profile-creation.sh && 
-      sh /init-scripts/crypto-data-digest-lambda/02-wait-for-localstack.sh && 
-      sh /init-scripts/crypto-data-digest-lambda/03-resources-creation.sh"
+      sh -c "sh /init-scripts/localstack/01-profile-creation.sh && 
+      sh /init-scripts/crypto-data-analysis-gen/01-wait-for-localstack.sh && 
+      sh /init-scripts/crypto-data-analysis-gen/02-resources-creation.sh &&
+      sh /init-scripts/crypto-data-digest-lambda/01-wait-for-localstack.sh && 
+      sh /init-scripts/crypto-data-digest-lambda/02-resources-creation.sh"

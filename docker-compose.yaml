@@ -19,6 +19,11 @@ services:
     volumes:
       - ./lambda-files:/lambda-files
     entrypoint: sh -c "cp crypto-robot-data-digest.zip /lambda-files"
+  crypto-robot-operation-hub:
+    image: lfbrienze/crypto-operation-hub:latest
+    volumes:
+      - ./lambda-files:/lambda-files
+    entrypoint: sh -c "cp crypto-robot-operation-hub.zip /lambda-files"
   awscli:
     depends_on:
       - crypto-data-digest-lambda
@@ -28,12 +33,15 @@ services:
       - ./localstack/init-scripts:/init-scripts/localstack
       - ./crypto-data-analysis-gen/init-scripts:/init-scripts/crypto-data-analysis-gen
       - ./crypto-data-digest-lambda/init-scripts:/init-scripts/crypto-data-digest-lambda
+      - ./crypto-robot-operation-hub/init-scripts:/init-scripts/crypto-robot-operation-hub
     entrypoint: >
       sh -c "sh /init-scripts/localstack/01-profile-creation.sh && 
       sh /init-scripts/crypto-data-analysis-gen/01-wait-for-localstack.sh && 
       sh /init-scripts/crypto-data-analysis-gen/02-resources-creation.sh &&
       sh /init-scripts/crypto-data-digest-lambda/01-wait-for-localstack.sh && 
-      sh /init-scripts/crypto-data-digest-lambda/02-resources-creation.sh"
+      sh /init-scripts/crypto-data-digest-lambda/02-resources-creation.sh &&
+      sh /init-scripts/crypto-robot-operation-hub/01-wait-for-localstack.sh && 
+      sh /init-scripts/crypto-robot-operation-hub/02-resources-creation.sh"
   crypto-data-analysis-gen:
     depends_on:
       - awscli

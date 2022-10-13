@@ -2,6 +2,7 @@ version: "3"
 
 services:
   localstack:
+    container_name: localstack
     image: localstack/localstack
     ports:
       - '4566-4597:4566-4597'
@@ -15,16 +16,39 @@ services:
       - ./localstack/init-scripts:/docker-entrypoint-initaws.d
       - /var/run/docker.sock:/var/run/docker.sock
   crypto-data-digest-lambda:
+    container_name: crypto-data-digest-lambda
     image: lfbrienze/crypto-data-digest-lambda:latest
     volumes:
       - ./lambda-files:/lambda-files
     entrypoint: sh -c "cp crypto-robot-data-digest.zip /lambda-files"
   crypto-robot-operation-hub:
+    container_name: crypto-data-operation-hub
     image: lfbrienze/crypto-operation-hub:latest
     volumes:
       - ./lambda-files:/lambda-files
     entrypoint: sh -c "cp crypto-robot-operation-hub.zip /lambda-files"
+  crypto-robot-validator:
+    container_name: crypto-data-validator
+    image: lfbrienze/crypto-validator:latest
+    volumes:
+      - ./lambda-files:/lambda-files
+    entrypoint: sh -c "cp crypto-robot-validator.zip /lambda-files"
+  redis:
+    container_name: redis
+    image: redis
+    command: redis-server --requirepass password123
+    hostname: redis
+    ports:
+      - "6379:6379"
+  biscoint-mock:
+    container_name: biscoint-mock
+    image: lfbrienze/biscoint-mock:latest
+    ports:
+      - "8080:8080"
+    entrypoint: >
+      sh -c "java -jar application/target/biscoint-mock.jar"
   awscli:
+    container_name: awscli
     depends_on:
       - crypto-data-digest-lambda
       - crypto-robot-operation-hub
@@ -35,6 +59,7 @@ services:
       - ./crypto-data-analysis-gen/init-scripts:/init-scripts/crypto-data-analysis-gen
       - ./crypto-data-digest-lambda/init-scripts:/init-scripts/crypto-data-digest-lambda
       - ./crypto-robot-operation-hub/init-scripts:/init-scripts/crypto-robot-operation-hub
+      - ./crypto-robot-validator/init-scripts:/init-scripts/crypto-robot-validator
     entrypoint: >
       sh -c "sh /init-scripts/localstack/01-profile-creation.sh && 
       sh /init-scripts/crypto-data-analysis-gen/01-wait-for-localstack.sh && 
@@ -42,8 +67,13 @@ services:
       sh /init-scripts/crypto-data-digest-lambda/01-wait-for-localstack.sh && 
       sh /init-scripts/crypto-data-digest-lambda/02-resources-creation.sh &&
       sh /init-scripts/crypto-robot-operation-hub/01-wait-for-localstack.sh && 
-      sh /init-scripts/crypto-robot-operation-hub/02-resources-creation.sh"
+      sh /init-scripts/crypto-robot-operation-hub/02-resources-creation.sh && 
+      sh /init-scripts/crypto-robot-operation-hub/03-test-data-creation.sh && 
+      sh /init-scripts/crypto-robot-validator/01-wait-for-localstack.sh && 
+      sh /init-scripts/crypto-robot-validator/02-resources-creation.sh && 
+      sh /init-scripts/crypto-robot-validator/03-test-data-creation.sh"
   crypto-data-analysis-gen:
+    container_name: crypto-data-analysis-gen
     depends_on:
       - awscli
     image: lfbrienze/crypto-data-analysis-gen:latest

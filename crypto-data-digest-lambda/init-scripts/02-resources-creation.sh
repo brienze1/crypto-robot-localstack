@@ -2,8 +2,18 @@
 
 echo "-----------------Script-02----------------- [data-digest]"
 
+echo "########### Creating DLQ SQS ###########"
+aws sqs create-queue --queue-name cryptoAnalysisQueueDLQ --endpoint-url http://localstack:4566
+
 echo "########### Creating SQS ###########"
-aws sqs create-queue --queue-name cryptoAnalysisQueue --endpoint-url http://localstack:4566
+aws sqs create-queue \
+--queue-name cryptoAnalysisQueue \
+--attributes '{
+    "RedrivePolicy": "{\"deadLetterTargetArn\":\"arn:aws:sqs:sa-east-1:000000000000:cryptoAnalysisQueueDLQ\",\"maxReceiveCount\":\"3\"}",
+    "MessageRetentionPeriod": "259200",
+    "VisibilityTimeout": "90"
+}' \
+--endpoint-url http://localstack:4566
 
 echo "########### Listing SQS ###########"
 aws sqs list-queues --endpoint-url http://localstack:4566

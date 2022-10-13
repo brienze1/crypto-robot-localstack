@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-echo "-----------------Script-01----------------- [operation-hub]"
+echo "-----------------Script-01----------------- [validator]"
 
 echo "########### Check if localstack is up ###########"
 until curl http://localstack:4566/health --silent; do
@@ -23,8 +23,8 @@ done
 
 echo "########### Check if topic was created ###########"
 until aws sns get-topic-attributes \
-  --topic-arn arn:aws:sns:sa-east-1:000000000000:cryptoAnalysisTopic \
+  --topic-arn arn:aws:sns:sa-east-1:000000000000:cryptoOperationTriggerTopic \
   --endpoint-url http://localstack:4566; do
-  echo "Topic \"cryptoAnalysisTopic\" not created yet"
+  echo "Topic \"cryptoOperationTriggerTopic\" not created yet"
   sleep 1
 done
